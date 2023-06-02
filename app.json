@@ -4,10 +4,10 @@
     "slug": "ABottle",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/PenguinAppsLogo.jpeg",
+    "icon": "./assets/BottleLogoC.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/Bottlesplash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -18,14 +18,19 @@
       "supportsTablet": true
     },
     "android": {
-      "package":"Atharva.BottleApp",
+      "package": "Atharva.BottleApp",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/BottleLogoC.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4cfe6eff-95b6-43bd-9464-2ed8f1c8ba8f"
+      }
     }
   }
 }
