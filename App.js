@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { View, Button, Image, Alert, StyleSheet, Text } from 'react-native';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createAppContainer } from 'react-navigation';
-import * as ImagePicker from 'expo-image-picker';
-import * as MediaLibrary from 'expo-media-library';
+//import * as MediaLibrary from 'expo-media-library';
+import ImagePicker from 'react-native-image-crop-picker';
 
 //Declares a functional component named SubmitPhotoScreen that takes a navigation prop as input.
 const SubmitPhotoScreen = ({ navigation }) => {
@@ -45,18 +45,17 @@ const App = ({ navigation }) => {
   const [photo, setPhoto] = useState(null); //Uses the useState hook to declare a state variable named photo and a function named setPhoto to update its value. The initial value of photo is null.
 
   //Declares an asynchronous function named handleCapturePhoto that requests camera permissions using ImagePicker.requestCameraPermissionsAsync
-  const handleCapturePhoto = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-
-    if (status === 'granted') {
-      const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      });
-
-      if (!result.canceled) {
-        navigation.navigate('SubmitPhoto', { photoUri: result.uri });
-      }
-    }
+    const openCamera = () => {
+    ImagePicker.openCamera({
+      width: 300,
+      height: 400,
+      cropping: true,
+    })
+      .then(image => {
+        setUri(image.path);
+        props.onChange?.(image);
+      })
+      .finally(close);
   };
 
   //Declares an asynchronous function named handleBrowsePhoto that requests media library permissions using ImagePicker.requestMediaLibraryPermissionsAsync
@@ -68,7 +67,7 @@ const App = ({ navigation }) => {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
       });
 
-      if (!result.canceled) {
+      if (!result.cancelled) {
         navigation.navigate('SubmitPhoto', { photoUri: result.uri });
       }
     }
