@@ -53,7 +53,7 @@ const App = ({ navigation }) => {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
       });
 
-      if (!result.cancelled) {
+      if (!result.canceled) {
         navigation.navigate('SubmitPhoto', { photoUri: result.uri });
       }
     }
@@ -68,7 +68,7 @@ const App = ({ navigation }) => {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
       });
 
-      if (!result.cancelled) {
+      if (!result.canceled) {
         navigation.navigate('SubmitPhoto', { photoUri: result.uri });
       }
     }
