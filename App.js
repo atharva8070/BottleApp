@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { View, Button, Image, Alert, StyleSheet, Text } from 'react-native';
-import { createStackNavigator } from 'react-navigation-stack';
-import { createAppContainer } from 'react-navigation';
+import React, { useState } from "react";
+import { View, Button, Image, Alert, StyleSheet, Text } from "react-native";
+import { createStackNavigator } from "react-navigation-stack";
+import { createAppContainer } from "react-navigation";
 //import * as MediaLibrary from 'expo-media-library';
-import ImagePicker from 'react-native-image-crop-picker';
+import * as ImagePicker from "expo-image-picker";
 
 //Declares a functional component named SubmitPhotoScreen that takes a navigation prop as input.
 const SubmitPhotoScreen = ({ navigation }) => {
-  const photoUri = navigation.getParam('photoUri', null); //Retrieves the value of the 'photoUri' parameter from the navigation prop.
+  const photoUri = navigation.getParam("photoUri", null); //Retrieves the value of the 'photoUri' parameter from the navigation prop.
 
   const handleCropPhoto = () => {
     // Photo cropping logic here
@@ -23,14 +23,15 @@ const SubmitPhotoScreen = ({ navigation }) => {
 
   //UI and layout elements for the Photo Submit Screen
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <Image
         source={{ uri: photoUri }}
         style={{ width: 200, height: 200, marginBottom: 10 }}
       />
       <View style={styles.buttonContainer}>
         <View style={styles.buttonGroup}>
-          <Button title="Crop" onPress={handleCropPhoto} /><View style={styles.spacing} />
+          <Button title="Crop" onPress={handleCropPhoto} />
+          <View style={styles.spacing} />
           <Button title="Delete" onPress={handleDeletePhoto} />
         </View>
         <View style={styles.spacing} />
@@ -45,30 +46,36 @@ const App = ({ navigation }) => {
   const [photo, setPhoto] = useState(null); //Uses the useState hook to declare a state variable named photo and a function named setPhoto to update its value. The initial value of photo is null.
 
   //Declares an asynchronous function named handleCapturePhoto that requests camera permissions using ImagePicker.requestCameraPermissionsAsync
-    const openCamera = () => {
-    ImagePicker.openCamera({
-      width: 300,
-      height: 400,
-      cropping: true,
+  const openCamera = () => {
+    ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [3, 4],
+      quality: 1,
     })
-      .then(image => {
+      .then((image) => {
         setUri(image.path);
         props.onChange?.(image);
       })
-      .finally(close);
+      .finally((res) => {
+        console.log(res);
+      });
   };
 
   //Declares an asynchronous function named handleBrowsePhoto that requests media library permissions using ImagePicker.requestMediaLibraryPermissionsAsync
   const handleBrowsePhoto = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    if (status === 'granted') {
+    if (status === "granted") {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
       });
 
-      if (!result.cancelled) {
-        navigation.navigate('SubmitPhoto', { photoUri: result.uri });
+      if (!result.canceled) {
+        setPhoto(result.assets[0].uri);
+        navigation.navigate("SubmitPhoto", { photoUri: result.assets[0].uri });
       }
     }
   };
@@ -77,15 +84,15 @@ const App = ({ navigation }) => {
   const handleSubmitPhoto = async () => {
     if (photo) {
       const asset = await MediaLibrary.createAssetAsync(photo);
-      Alert.alert('Submitted', 'Photo has been submitted!');
+      Alert.alert("Submitted", "Photo has been submitted!");
     } else {
-      Alert.alert('Error', 'No photo selected.');
+      Alert.alert("Error", "No photo selected.");
     }
   };
 
   //UI and layout elements for main app screen
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       {photo && (
         <Image
           source={{ uri: photo }}
@@ -95,9 +102,17 @@ const App = ({ navigation }) => {
       <Text style={styles.sectionTitle}>Welcome!</Text>
       <View style={styles.spacing} />
       <View style={styles.buttonContainer}>
-        <Button title="Capture Photo" onPress={handleCapturePhoto} style={styles.button} />
+        <Button
+          title="Capture Photo"
+          onPress={openCamera}
+          style={styles.button}
+        />
         <View style={styles.spacing} />
-        <Button title="Browse Photo" onPress={handleBrowsePhoto} style={styles.button} />
+        <Button
+          title="Browse Photo"
+          onPress={handleBrowsePhoto}
+          style={styles.button}
+        />
         <View style={styles.spacing} />
       </View>
     </View>
@@ -107,11 +122,11 @@ const App = ({ navigation }) => {
 //Defines a style object using the StyleSheet.create function
 const styles = StyleSheet.create({
   buttonContainer: {
-    width: '50%',
+    width: "50%",
   },
   buttonGroup: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   button: {
     flex: 1,
@@ -122,7 +137,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 
@@ -133,7 +148,7 @@ const AppNavigator = createStackNavigator(
     SubmitPhoto: { screen: SubmitPhotoScreen },
   },
   {
-    initialRouteName: 'Home',
+    initialRouteName: "Home",
   }
 );
 
