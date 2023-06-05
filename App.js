@@ -8,7 +8,7 @@ import * as ImagePicker from "expo-image-picker";
 //Declares a functional component named SubmitPhotoScreen that takes a navigation prop as input.
 const SubmitPhotoScreen = ({ navigation }) => {
   const photoUri = navigation.getParam("photoUri", null); //Retrieves the value of the 'photoUri' parameter from the navigation prop.
-
+console.log('photoUri',photoUri)
   const handleCropPhoto = () => {
     // Photo cropping logic here
   };
@@ -45,6 +45,7 @@ const SubmitPhotoScreen = ({ navigation }) => {
 const App = ({ navigation }) => {
   const [photo, setPhoto] = useState(null); //Uses the useState hook to declare a state variable named photo and a function named setPhoto to update its value. The initial value of photo is null.
 
+  const [uri, setUri] = useState(null);
   //Declares an asynchronous function named handleCapturePhoto that requests camera permissions using ImagePicker.requestCameraPermissionsAsync
   const openCamera = () => {
     ImagePicker.launchCameraAsync({
@@ -53,11 +54,12 @@ const App = ({ navigation }) => {
       quality: 1,
     })
       .then((image) => {
+        console.log(image)
         setUri(image.path);
-        props.onChange?.(image);
+        navigation.navigate("SubmitPhoto", { photoUri: image.assets[0].uri });
       })
       .finally((res) => {
-        console.log(res);
+        console.log('photo clicked');
       });
   };
 
@@ -144,11 +146,11 @@ const styles = StyleSheet.create({
 //Creates a stack navigator using createStackNavigator and defines two screens: 'Home' and 'SubmitPhoto'
 const AppNavigator = createStackNavigator(
   {
-    Home: { screen: App },
+    BottleApp: { screen: App },
     SubmitPhoto: { screen: SubmitPhotoScreen },
   },
   {
-    initialRouteName: "Home",
+    initialRouteName: "BottleApp",
   }
 );
 
