@@ -9,9 +9,6 @@ import * as ImagePicker from "expo-image-picker";
 const SubmitPhotoScreen = ({ navigation }) => {
   const photoUri = navigation.getParam("photoUri", null); //Retrieves the value of the 'photoUri' parameter from the navigation prop.
 console.log('photoUri',photoUri)
-  const handleCropPhoto = () => {
-    // Photo cropping logic here
-  };
 
   const handleDeletePhoto = () => {
     navigation.goBack();
@@ -29,12 +26,9 @@ console.log('photoUri',photoUri)
         style={{ width: 200, height: 200, marginBottom: 10 }}
       />
       <View style={styles.buttonContainer}>
-        <View style={styles.buttonGroup}>
-          <Button title="Crop" onPress={handleCropPhoto} />
-          <View style={styles.spacing} />
-          <Button title="Delete" onPress={handleDeletePhoto} />
+        <View style={styles.spacing}>
+          <Button title="Delete Photo" onPress={handleDeletePhoto} />
         </View>
-        <View style={styles.spacing} />
         <Button title="Submit" onPress={handleSubmitPhoto} />
       </View>
     </View>
