@@ -2,45 +2,89 @@ import React, { useState } from "react";
 import { View, Button, Image, Alert, StyleSheet, Text } from "react-native";
 import { createStackNavigator } from "react-navigation-stack";
 import { createAppContainer } from "react-navigation";
-//import * as MediaLibrary from 'expo-media-library';
+import { HeaderBackButton } from "react-navigation-stack";
 import * as ImagePicker from "expo-image-picker";
 
-//Declares a functional component named SubmitPhotoScreen that takes a navigation prop as input.
 const SubmitPhotoScreen = ({ navigation }) => {
-  const photoUri = navigation.getParam("photoUri", null); //Retrieves the value of the 'photoUri' parameter from the navigation prop.
-console.log('photoUri',photoUri)
+  const photoUri = navigation.getParam("photoUri", null);
 
+  //For the Delete Button
   const handleDeletePhoto = () => {
-    navigation.goBack();
+    Alert.alert(
+      "Delete Photo?",
+      "Are you sure you want to delete this photo?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+          onPress: () => {},
+        },
+        {
+          text: "Delete",
+          onPress: () => {
+            navigation.goBack();
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   const handleSubmitPhoto = () => {
     // Photo submission logic here
   };
 
-  //UI and layout elements for the Photo Submit Screen
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Image
-        source={{ uri: photoUri }}
-        style={{ width: 200, height: 200, marginBottom: 10 }}
-      />
+      <Image source={{ uri: photoUri }} style={styles.imageStyle} />
       <View style={styles.buttonContainer}>
         <View style={styles.spacing}>
-          <Button title="Delete Photo" onPress={handleDeletePhoto} />
+          <Button
+            color="#2C67B7"
+            title="Delete Photo"
+            onPress={handleDeletePhoto}
+          />
         </View>
-        <Button title="Submit" onPress={handleSubmitPhoto} />
+        <Button
+          color="#2C67B7"
+          title="Submit"
+          onPress={handleSubmitPhoto}
+        />
       </View>
     </View>
   );
 };
 
-//Declares a functional component named App that takes a navigation prop as input.
-const App = ({ navigation }) => {
-  const [photo, setPhoto] = useState(null); //Uses the useState hook to declare a state variable named photo and a function named setPhoto to update its value. The initial value of photo is null.
+//For navigating back to the previous screen
+SubmitPhotoScreen.navigationOptions = ({ navigation }) => {
+  return {
+    headerLeft: () => (
+      <HeaderBackButton
+        onPress={() =>
+          Alert.alert(
+            "Stop Processing?",
+            "Your photo is not processed yet, are you sure you want to go back? ",
+            [
+              {
+                text: "Cancel",
+                style: "cancel",
+                onPress: () => {},
+              },
+              {
+                text: "Yes",
+                onPress: () => navigation.goBack(),
+              },
+            ],
+            { cancelable: true }
+          )
+        }
+      />
+    ),
+  };
+};
 
-  const [uri, setUri] = useState(null);
-  //Declares an asynchronous function named handleCapturePhoto that requests camera permissions using ImagePicker.requestCameraPermissionsAsync
+//For opening the camera and crop functionality
+const App = ({ navigation }) => {
   const openCamera = () => {
     ImagePicker.launchCameraAsync({
       allowsEditing: true,
@@ -48,16 +92,17 @@ const App = ({ navigation }) => {
       quality: 1,
     })
       .then((image) => {
-        console.log(image)
-        setUri(image.path);
-        navigation.navigate("SubmitPhoto", { photoUri: image.assets[0].uri });
+        if (!image.cancelled) {
+          console.log(image);
+          navigation.navigate("SubmitPhoto", { photoUri: image.uri });
+        }
       })
-      .finally((res) => {
-        console.log('photo clicked');
+      .finally(() => {
+        console.log("photo clicked");
       });
   };
 
-  //Declares an asynchronous function named handleBrowsePhoto that requests media library permissions using ImagePicker.requestMediaLibraryPermissionsAsync
+  //For Browsing for a photo
   const handleBrowsePhoto = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -70,74 +115,93 @@ const App = ({ navigation }) => {
       });
 
       if (!result.canceled) {
-        setPhoto(result.assets[0].uri);
-        navigation.navigate("SubmitPhoto", { photoUri: result.assets[0].uri });
+        navigation.navigate("SubmitPhoto", { photoUri: result.uri });
       }
     }
   };
 
-  //Declares an asynchronous function named handleSubmitPhoto that checks if a photo is selected (photo state variable) and then calls MediaLibrary.createAssetAsync to create an asset from the photo.
+  //For the submission of the photo
   const handleSubmitPhoto = async () => {
-    if (photo) {
-      const asset = await MediaLibrary.createAssetAsync(photo);
-      Alert.alert("Submitted", "Photo has been submitted!");
-    } else {
-      Alert.alert("Error", "No photo selected.");
-    }
+    Alert.alert("Error", "No photo selected.");
   };
 
-  //UI and layout elements for main app screen
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      {photo && (
-        <Image
-          source={{ uri: photo }}
-          style={{ width: 200, height: 200, marginBottom: 10 }}
-        />
-      )}
-      <Text style={styles.sectionTitle}>Welcome!</Text>
+      <Text style={styles.sectionTitle}>Welcome to BottleApp!</Text>
+      <Text style={styles.bodyText}>
+        Let's work together to create a cleaner and more sustainable future.
+        Start counting now and make a positive impact on the environment!
+      </Text>
       <View style={styles.spacing} />
       <View style={styles.buttonContainer}>
         <Button
+          color="#2C67B7"
           title="Capture Photo"
           onPress={openCamera}
           style={styles.button}
         />
+        <Text style={styles.miniText}>
+          Click this button to capture a new photo using your device's camera.
+        </Text>
         <View style={styles.spacing} />
         <Button
+          color="#2C67B7"
           title="Browse Photo"
           onPress={handleBrowsePhoto}
           style={styles.button}
         />
+        <Text style={styles.miniText}>
+          Click this button to choose an existing image from your device's
+          gallery.
+        </Text>
         <View style={styles.spacing} />
       </View>
     </View>
   );
 };
 
-//Defines a style object using the StyleSheet.create function
 const styles = StyleSheet.create({
   buttonContainer: {
     width: "50%",
   },
-  buttonGroup: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
   button: {
     flex: 1,
     marginVertical: 10,
+    textAlign: "center",
   },
   spacing: {
-    marginVertical: 15,
+    marginVertical: 35,
+  },
+  mtextSpacing: {
+    marginVertical: 10,
   },
   sectionTitle: {
     fontSize: 24,
     fontWeight: "bold",
+    paddingTop: 0,
+    color: "#2C67B7",
+  },
+  bodyText: {
+    width: "90%",
+    fontSize: 16,
+    textAlign: "center",
+    paddingTop: 40,
+  },
+  miniText: {
+    width: "90%",
+    fontSize: 12,
+    alignSelf: "center",
+    textAlign: "center",
+    paddingTop: 10,
+  },
+  imageStyle: {
+    width: "80%",
+    height: undefined,
+    aspectRatio: 1,
+    marginBottom: 10,
   },
 });
 
-//Creates a stack navigator using createStackNavigator and defines two screens: 'Home' and 'SubmitPhoto'
 const AppNavigator = createStackNavigator(
   {
     BottleApp: { screen: App },
@@ -148,8 +212,6 @@ const AppNavigator = createStackNavigator(
   }
 );
 
-//Creates a container component using createAppContainer and passes the AppNavigator as the argument.
 const AppContainer = createAppContainer(AppNavigator);
 
-//Exports the AppContainer component as the default export of the module.
 export default AppContainer;
