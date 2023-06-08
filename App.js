@@ -55,6 +55,7 @@ const SubmitPhotoScreen = ({ navigation }) => {
   );
 };
 
+
 //For navigating back to the previous screen
 SubmitPhotoScreen.navigationOptions = ({ navigation }) => {
   return {
@@ -83,6 +84,7 @@ SubmitPhotoScreen.navigationOptions = ({ navigation }) => {
   };
 };
 
+
 //For opening the camera and crop functionality
 const App = ({ navigation }) => {
   const openCamera = () => {
@@ -102,6 +104,7 @@ const App = ({ navigation }) => {
       });
   };
 
+
   //For Browsing for a photo
   const handleBrowsePhoto = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -120,6 +123,7 @@ const App = ({ navigation }) => {
     }
   };
 
+  
   //For the submission of the photo
   const handleSubmitPhoto = async () => {
     Alert.alert("Error", "No photo selected.");
