@@ -30,8 +30,33 @@ const SubmitPhotoScreen = ({ navigation }) => {
     );
   };
 
-  const handleSubmitPhoto = () => {
-    // Photo submission logic here
+  const handleSubmitPhoto = async () => {
+    const formData = new FormData();
+    formData.append('image', {
+      uri: photoUri,
+      name: 'image.jpg',
+      type: 'image/jpg',
+    });
+
+    try {
+      const response = await fetch('http://your-flask-app-url/process-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const bottleCount = result.count;
+        // Navigate to the next screen and pass the bottle count as a parameter
+        navigation.navigate('CountScreen', { bottleCount });
+      } else {
+        // Handle error response
+        console.error('Image processing failed');
+      }
+    } catch (error) {
+      // Handle network or fetch error
+      console.error(error);
+    }
   };
 
   return (
@@ -54,7 +79,6 @@ const SubmitPhotoScreen = ({ navigation }) => {
     </View>
   );
 };
-
 
 //For navigating back to the previous screen
 SubmitPhotoScreen.navigationOptions = ({ navigation }) => {
@@ -84,7 +108,6 @@ SubmitPhotoScreen.navigationOptions = ({ navigation }) => {
   };
 };
 
-
 //For opening the camera and crop functionality
 const App = ({ navigation }) => {
   const openCamera = () => {
@@ -104,7 +127,6 @@ const App = ({ navigation }) => {
       });
   };
 
-
   //For Browsing for a photo
   const handleBrowsePhoto = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -117,17 +139,42 @@ const App = ({ navigation }) => {
         quality: 1,
       });
 
-      if (!result.canceled) {
+      if (!result.cancelled) {
         navigation.navigate("SubmitPhoto", { photoUri: result.uri });
       }
     }
   };
 
-  
   //For the submission of the photo
   const handleSubmitPhoto = async () => {
-    Alert.alert("Error", "No photo selected.");
+    const formData = new FormData();
+    formData.append('image', {
+      uri: photoUri,
+      name: 'image.jpg',
+      type: 'image/jpg',
+    });
+  
+    try {
+      const response = await fetch('http://127.0.0.1:5000', {
+        method: 'POST',
+        body: formData,
+      });
+  
+      if (response.ok) {
+        const result = await response.json();
+        const bottleCount = result.count;
+        // Navigate to the next screen and pass the bottle count as a parameter
+        navigation.navigate('CountScreen', { bottleCount });
+      } else {
+        // Handle error response
+        console.error('Image processing failed');
+      }
+    } catch (error) {
+      // Handle network or fetch error
+      console.error(error);
+    }
   };
+  
 
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -204,15 +251,33 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     marginBottom: 10,
   },
+  count: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#2C67B7',
+    marginTop: 20,
+  },
 });
+
+const CountScreen = ({ navigation }) => {
+  const bottleCount = navigation.getParam('bottleCount', 0);
+
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text style={styles.sectionTitle}>Bottle Count:</Text>
+      <Text style={styles.count}>{bottleCount}</Text>
+    </View>
+  );
+};
 
 const AppNavigator = createStackNavigator(
   {
     BottleApp: { screen: App },
     SubmitPhoto: { screen: SubmitPhotoScreen },
+    CountScreen: { screen: CountScreen },
   },
   {
-    initialRouteName: "BottleApp",
+    initialRouteName: 'BottleApp',
   }
 );
 
